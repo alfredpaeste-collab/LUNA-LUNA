@@ -1,6 +1,17 @@
 exports.handler = async function(event, context) {
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Content-Type': 'application/json'
+  };
+
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 200, headers, body: '' };
+  }
+
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: 'Method Not Allowed' };
+    return { statusCode: 405, headers, body: 'Method Not Allowed' };
   }
 
   const keys = [
@@ -17,7 +28,7 @@ exports.handler = async function(event, context) {
   ].filter(Boolean);
 
   if (!keys.length) {
-    return { statusCode: 500, body: JSON.stringify({ error: 'No API keys configured' }) };
+    return { statusCode: 500, headers, body: JSON.stringify({ error: 'No API keys configured' }) };
   }
 
   const key = keys[Math.floor(Math.random() * keys.length)];
@@ -35,7 +46,7 @@ exports.handler = async function(event, context) {
 
   return {
     statusCode: response.status,
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify(data)
   };
 };
